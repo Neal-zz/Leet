@@ -159,7 +159,7 @@ unsigned minDisMemo(const std::string& s1, const std::string& s2, std::vector<st
 		return i + 1;
 	}
 
-	// look up the dp table.
+	// look up the memo.
 	if (memo[i][j] != static_cast<unsigned>(std::max({ s1.length() + 1,s2.length() + 1 }))) {
 		return memo[i][j];
 	}
@@ -178,8 +178,11 @@ unsigned minDisMemo(const std::string& s1, const std::string& s2, std::vector<st
 }
 
 unsigned minDisDP(const std::string& s1, const std::string& s2) {
+	
+	// dp table.
 	std::vector<std::vector<unsigned>> dp(s1.length() + 1, std::vector<unsigned>(s2.length() + 1, 0));
 
+	// base case.
 	for (size_t i = 0; i < (s1.length() + 1); i++) {
 		dp[i][0] = i;
 	}
@@ -187,6 +190,7 @@ unsigned minDisDP(const std::string& s1, const std::string& s2) {
 		dp[0][j] = j;
 	}
 
+	// state change.
 	for (size_t i = 1; i < (s1.length() + 1); i++) {
 		for (size_t j = 1; j < (s2.length() + 1); j++) {
 			if (s1[i-1] == s2[j-1]) {  // skip is always preferred.
@@ -201,8 +205,136 @@ unsigned minDisDP(const std::string& s1, const std::string& s2) {
 	return dp[s1.length()][s2.length()];
 }
 
+unsigned brokenEgg(unsigned eggK, unsigned floorN) {
 
+	// memo
+	std::vector<std::vector<unsigned>> eggMemo(eggK + 1, std::vector<unsigned>(floorN + 1, floorN + 1));
 
+	return brokenEggMemo(eggMemo, eggK, floorN);
+}
 
+unsigned brokenEggMemo(std::vector<std::vector<unsigned>>& eggMemo, unsigned eggK, unsigned floorN) {
 
+	// memo
+	if (eggMemo[eggK][floorN] != eggMemo[0].size()) {
+		return eggMemo[eggK][floorN];
+	}
 
+	// base case
+	if (eggK == 1) {
+		eggMemo[1][floorN] = floorN;
+		return floorN;
+	}
+	if (floorN == 0) {
+		eggMemo[eggK][0] = 0;
+		return 0;
+	}
+
+	/* state change*/
+	// method 1.
+	unsigned ans = eggMemo[0].size();
+	//for (size_t j = 1; j <= floorN; j++) {
+	//	unsigned tempAns = std::max({ brokenEggMemo(eggMemo, eggK - 1, j - 1),  // if broken.
+	//		brokenEggMemo(eggMemo, eggK, floorN - j) });  // if not broken.
+	//	ans = std::min({ ans, tempAns + 1 });
+	//}
+	// method 2. binary search methods.
+	unsigned floorLow = 1, floorHigh = floorN;
+	while (floorLow <= floorHigh) {
+		unsigned floorMid = (floorLow + floorHigh) / 2;
+		unsigned broken = brokenEggMemo(eggMemo, eggK - 1, floorMid - 1);
+		unsigned unbroken = brokenEggMemo(eggMemo, eggK, floorN - floorMid);
+		if (broken > unbroken) {
+			floorHigh = floorMid - 1;
+			ans = std::min({ ans, broken + 1 });
+		}
+		else {
+			floorLow = floorMid + 1;
+			ans = std::min({ ans, unbroken + 1 });
+		}
+	}
+
+	eggMemo[eggK][floorN] = ans;
+	return ans;
+}
+
+unsigned brokenEggDP(unsigned eggK, unsigned floorN) {
+
+	// dp table. (egg number, try times). maximum try times = floorN.
+	unsigned maxTimes = floorN / eggK;
+	std::vector<std::vector<unsigned>> eggDP(eggK + 1, std::vector<unsigned>(maxTimes, 0));
+
+	// base case.
+	for (size_t i = 1; i < eggK + 1; i++) {
+		eggDP[i][1] = 1;
+	}
+	for (size_t j = 0; j < maxTimes; j++) {
+		eggDP[1][j] = j;
+	}
+
+	// state change.
+	for (size_t j = 2; j < maxTimes; j++) {
+		for (size_t i = 2; i < (eggK + 1); i++) {
+			eggDP[i][j] = eggDP[i - 1][j - 1] + eggDP[i][j - 1] + 1;
+			if (eggDP[i][j] >= floorN && i == eggK) {
+				return j;
+			}
+		}
+	}
+}
+
+unsigned lpsDP(const std::string& str) {
+
+	// dp table. (start and end pointer of the subsequence.)
+	std::vector<std::vector<unsigned>> dp(str.length(), std::vector<unsigned>(str.length(), 0));
+
+	// base case.
+	for (size_t i = 0; i < str.length(); i++) {
+		dp[i][i] = 1;
+	}
+
+	// state change.
+	for (int i = str.length() - 2; i >= 0; i--) {
+		for (int j = i + 1; j < str.length(); j++) {
+			if (str[i] == str[j]) {
+				dp[i][j] = dp[i + 1][j - 1] + 2;
+			}
+			else {
+				dp[i][j] = std::max({ dp[i + 1][j], dp[i][j - 1] });
+			}
+		}
+	}
+
+	return dp[0][str.length() - 1];
+}
+
+int psDP(const std::vector<unsigned>& piles) {
+
+	// dp table.
+	std::vector<std::vector<std::tuple<unsigned, unsigned>>> 
+		dp(piles.size(), std::vector<std::tuple<unsigned, unsigned>>(piles.size(), std::make_tuple(0, 0)));
+
+	// base case.
+	for (size_t i = 0; i < piles.size(); i++) {
+		dp[i][i] = std::make_tuple(piles[i], 0);
+	}
+
+	// state change.
+	for (size_t di = 1; di < piles.size(); di++) {
+		for (size_t i = 0; i < piles.size() - di; i++) {
+			unsigned left = std::get<1>(dp[i + 1][i + di]) + piles[i];
+			unsigned right = std::get<1>(dp[i][i + di - 1]) + piles[i + di];
+
+			if (left > right) {
+				dp[i][i + di] = std::make_tuple(std::get<1>(dp[i + 1][i + di]) + piles[i], std::get<0>(dp[i + 1][i + di]));
+			}
+			else {
+				dp[i][i + di] = std::make_tuple(std::get<1>(dp[i][i + di - 1]) + piles[i + di], std::get<0>(dp[i][i + di - 1]));
+			}
+		}
+	}
+
+	int ans = static_cast<int>(std::get<0>(dp[0][piles.size() - 1])) -
+		static_cast<int>(std::get<1>(dp[0][piles.size() - 1]));
+	return ans;
+}

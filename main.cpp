@@ -11,9 +11,14 @@ int main() {
 	std::vector<unsigned> seq({ 10,9,2,5,3,7,101,18 });
 	std::cout << lis(seq) << std::endl;
 
-	std::string s1 = "rad", s2 = "apple";
-	std::cout << minDisDP(s1, s2) << std::endl;
+	std::cout << minDisDP("rad", "apple") << std::endl;
 
-	
+	std::cout << brokenEgg(2, 1040) << std::endl;
+	std::cout << brokenEggDP(2, 1040) << std::endl;
+
+	std::cout << lpsDP("abxabybx") << std::endl;
+
+	std::cout << psDP({ 3,9,1,2 }) << std::endl;
+
 	return 0;
 }

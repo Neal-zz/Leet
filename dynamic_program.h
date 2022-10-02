@@ -3,6 +3,7 @@
 #include <algorithm>  // std::max
 #include <string>
 #include <iostream>
+#include <tuple>  // std::make_tuple
 
 /* fibonacci.*/
 unsigned fibFromTopToBottom(std::vector<unsigned>& fibArray, unsigned N);
@@ -24,4 +25,17 @@ unsigned minDisMemo(const std::string& s1, const std::string& s2, std::vector<st
 unsigned minDis(const std::string& s1, const std::string& s2);
 
 unsigned minDisDP(const std::string& s1, const std::string& s2);
+
+/* broken egg.*/
+unsigned brokenEggMemo(std::vector<std::vector<unsigned>>& eggMemo, unsigned eggK, unsigned floorN);
+unsigned brokenEgg(unsigned eggK, unsigned floorN);
+
+unsigned brokenEggDP(unsigned eggK, unsigned floorN);
+
+/* longest palindrome subsequence.*/
+unsigned lpsDP(const std::string& str);
+
+/* piles selection.*/
+int psDP(const std::vector<unsigned>& piles);
+
 
